@@ -1,21 +1,33 @@
-import 'package:calender/presentation/home_page/home_page.dart';
+import 'package:calender/utils/contants/app_colors.dart';
+import 'package:calender/utils/contants/text_constants.dart';
+import 'package:calender/utils/routes/app_routes.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 void main() {
-  runApp(const MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
+  return runApp(
+    const MyCalendarApp(),
+  );
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+class MyCalendarApp extends StatelessWidget {
+  const MyCalendarApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
+    return GetMaterialApp(
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: AppColors.myTheme,
+        appBarTheme: const AppBarTheme(
+          iconTheme: IconThemeData(color: AppColors.kBlack),
+          color: AppColors.kWhite,
+        ),
+        scaffoldBackgroundColor: AppColors.kWhite,
       ),
-      home: const HomePage(),
+      initialRoute: AppRoutes.kSplash,
+      getPages: AppRoutes.getPages(),
+      title: myAppName,
     );
   }
 }
