@@ -18,6 +18,7 @@ class CalenderController extends GetxController {
   Future<void> getSelectedCalendars() async {
     final lists = await _getMyCalendar.getSelectedCalendars();
     selectedValues(lists);
+    await getDataSource();
   }
 
   Future<void> addOrRemoveFromCalendars(

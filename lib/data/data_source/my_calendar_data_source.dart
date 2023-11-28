@@ -1,4 +1,7 @@
-import 'package:calender/data/data_source/my_calendar_event_mapper.dart';
+import 'dart:convert';
+import 'dart:developer';
+
+import 'package:calender/data/mapper/my_calendar_event_mapper.dart';
 import 'package:calender/domain/models/calender_event.dart';
 import 'package:calender/utils/contants/secrets.dart';
 import 'package:device_calendar/device_calendar.dart';
@@ -66,6 +69,7 @@ class RemoteMyCalendarDataSource extends MyCalendarDataSource {
           List<Calendar> calenderList = map[calendar.name] ?? [];
           calenderList.add(calendar);
           map[calendar.name ?? ''] = calenderList;
+
           return map;
         } else if (calendar.accountType == "com.osp.app.signin") {
           List<Calendar> calenderList = map[calendar.name] ?? [];
@@ -122,7 +126,17 @@ class RemoteMyCalendarDataSource extends MyCalendarDataSource {
     List<MyCalendarEvent> calendarEvents = [];
     try {
       final calendarIds = await getCalendarIds();
-      for (var calendarId in calendarIds) {
+      final selectedCalendars = await getSelectedCalendars();
+
+      List<String> filteredIds = selectedCalendars
+          .where((id) => calendarIds.containsKey(id))
+          .map((id) => calendarIds[id]) // Map keys to values
+          .toList()
+          .cast();
+      log("-----");
+      log(filteredIds.toString());
+
+      for (var calendarId in filteredIds) {
         final params = RetrieveEventsParams(
           startDate: DateTime(2000),
           endDate: DateTime(2100),
@@ -142,25 +156,29 @@ class RemoteMyCalendarDataSource extends MyCalendarDataSource {
     return calendarEvents;
   }
 
-  Future<List<String>> getCalendarIds() async {
-    List<String> calenderIds = [];
+  Future<Map<String, dynamic>> getCalendarIds() async {
+    Map<String, dynamic> idMaps = {};
     try {
       final prefs = await SharedPreferences.getInstance();
-      calenderIds = prefs.getStringList(Secrets.calendarIds) ?? [];
+      final idMapsString = prefs.getString(Secrets.calendarIds);
+      if (idMapsString != null) {
+        log(idMapsString.toString());
+        idMaps = jsonDecode(idMapsString);
+      }
     } catch (e) {
       debugPrint(e.toString());
     }
-    return calenderIds;
+    return idMaps;
   }
 
   Future<void> setCalendarIds(List<Calendar> calendarList) async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      List<String> calenderIds = [];
+      Map<String, String> idMap = {};
       for (var calendar in calendarList) {
-        calenderIds.add(calendar.id ?? '');
+        idMap[calendar.name ?? ''] = calendar.id ?? '';
       }
-      await prefs.setStringList(Secrets.calendarIds, calenderIds);
+      await prefs.setString(Secrets.calendarIds, jsonEncode(idMap));
     } catch (e) {
       debugPrint(e.toString());
     }
