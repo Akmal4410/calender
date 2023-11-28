@@ -19,5 +19,6 @@ class AppColors {
 
   // static const Color kScaffoldBackgroundColor = Color(0XFFf5f4f2);
   static const Color kGrey = Color(0XFFeaeaea);
+  static const Color kGreen = Color(0xFF5eb832);
   static const Color kBlack45 = Colors.black45;
 }

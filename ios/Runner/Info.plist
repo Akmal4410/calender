@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Calender</string>
+	<string>Calender App</string>
 	<key>NSCalendarsUsageDescription</key>
 	<string>This App need access most functions for calendar viewing and editing.</string>
 	<key>NSContactsUsageDescription</key>

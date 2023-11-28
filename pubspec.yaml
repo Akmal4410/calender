@@ -37,6 +37,10 @@ dependencies:
   device_calendar: ^4.3.2
   syncfusion_flutter_calendar: ^23.2.4
   get: ^4.6.6
+  flutter_datetime_picker_plus: ^2.1.0
+  intl: ^0.18.1
+  flutter_native_timezone: ^2.0.0
+  shared_preferences: ^2.2.2
 
 dev_dependencies:
   flutter_test:

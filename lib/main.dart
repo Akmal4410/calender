@@ -1,11 +1,13 @@
 import 'package:calender/utils/contants/app_colors.dart';
 import 'package:calender/utils/contants/text_constants.dart';
+import 'package:calender/utils/init_services.dart';
 import 'package:calender/utils/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await initServices();
   return runApp(
     const MyCalendarApp(),
   );
