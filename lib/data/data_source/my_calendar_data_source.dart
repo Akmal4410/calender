@@ -1,21 +1,16 @@
 import 'dart:convert';
-import 'dart:developer';
-
 import 'package:calender/data/mapper/my_calendar_event_mapper.dart';
 import 'package:calender/domain/models/calender_event.dart';
 import 'package:calender/utils/contants/secrets.dart';
 import 'package:device_calendar/device_calendar.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_native_timezone/flutter_native_timezone.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 abstract class MyCalendarDataSource {
   Future<Map<String, List<Calendar>>> loadCalender();
   Future<List<String>> getSelectedCalendars();
-  Future<void> addOrRemoveFromCalendars(bool? value, String calendarName);
+  Future<void> addOrRemoveFromCalendars(String calendarName);
   Future<List<MyCalendarEvent>> getDataSource();
-  Future<void> addToCalendar(
-      MyCalendarEvent calenderEvent, String selectedCalendarId);
 }
 
 class RemoteMyCalendarDataSource extends MyCalendarDataSource {
@@ -23,48 +18,14 @@ class RemoteMyCalendarDataSource extends MyCalendarDataSource {
 
   RemoteMyCalendarDataSource(this._deviceCalendarPlugin);
 
-  Location _currentLocation = getLocation('America/Detroit');
-
-  Future setCurentLocation() async {
-    String timezone = 'America/Detroit';
-    try {
-      timezone = await FlutterNativeTimezone.getLocalTimezone();
-    } catch (e) {
-      debugPrint('Could not get the local timezone');
-    }
-    _currentLocation = getLocation(timezone);
-    setLocalLocation(_currentLocation);
-  }
-
-  @override
-  Future<void> addToCalendar(
-    MyCalendarEvent calenderEvent,
-    String selectedCalendarId,
-  ) async {
-    setCurentLocation();
-    final eventToCreate = Event(
-      selectedCalendarId,
-      title: calenderEvent.subject,
-      allDay: calenderEvent.isAllDay,
-      start: TZDateTime.from(calenderEvent.start, _currentLocation),
-      end: TZDateTime.from(calenderEvent.end, _currentLocation),
-    );
-
-    final createEventResult =
-        await _deviceCalendarPlugin.createOrUpdateEvent(eventToCreate);
-
-    if (createEventResult?.isSuccess ?? false) {
-    } else {}
-  }
-
   @override
   Future<Map<String, List<Calendar>>> loadCalender() async {
-    final Map<String, List<Calendar>> map = {};
+    Map<String, List<Calendar>> calenderMap = {};
     try {
       final calendarsResult = await _deviceCalendarPlugin.retrieveCalendars();
       final calendars = calendarsResult.data?.toList() ?? [];
       await setCalendarIds(calendars);
-      calendars.fold(map, (previousValue, calendar) {
+      calenderMap = calendars.fold({}, (map, calendar) {
         if (calendar.accountType == "LOCAL") {
           List<Calendar> calenderList = map[calendar.name] ?? [];
           calenderList.add(calendar);
@@ -86,23 +47,20 @@ class RemoteMyCalendarDataSource extends MyCalendarDataSource {
     } catch (e) {
       debugPrint(e.toString());
     }
-    return map;
+    return calenderMap;
   }
 
   @override
-  Future<void> addOrRemoveFromCalendars(
-      bool? value, String calendarName) async {
+  Future<void> addOrRemoveFromCalendars(String calendarName) async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final selectedCalendars = await getSelectedCalendars();
-      if (value != null && value) {
-        selectedCalendars.add(calendarName);
-        prefs.setStringList(Secrets.selectedCalendars, selectedCalendars);
-        await getSelectedCalendars();
-      } else {
+      if (selectedCalendars.contains(calendarName)) {
         selectedCalendars.remove(calendarName);
-        prefs.setStringList(Secrets.selectedCalendars, selectedCalendars);
-        await getSelectedCalendars();
+        await prefs.setStringList(Secrets.selectedCalendars, selectedCalendars);
+      } else {
+        selectedCalendars.add(calendarName);
+        await prefs.setStringList(Secrets.selectedCalendars, selectedCalendars);
       }
     } catch (e) {
       debugPrint(e.toString());
@@ -133,8 +91,6 @@ class RemoteMyCalendarDataSource extends MyCalendarDataSource {
           .map((id) => calendarIds[id]) // Map keys to values
           .toList()
           .cast();
-      log("-----");
-      log(filteredIds.toString());
 
       for (var calendarId in filteredIds) {
         final params = RetrieveEventsParams(
@@ -162,7 +118,6 @@ class RemoteMyCalendarDataSource extends MyCalendarDataSource {
       final prefs = await SharedPreferences.getInstance();
       final idMapsString = prefs.getString(Secrets.calendarIds);
       if (idMapsString != null) {
-        log(idMapsString.toString());
         idMaps = jsonDecode(idMapsString);
       }
     } catch (e) {
@@ -177,8 +132,22 @@ class RemoteMyCalendarDataSource extends MyCalendarDataSource {
       Map<String, String> idMap = {};
       for (var calendar in calendarList) {
         idMap[calendar.name ?? ''] = calendar.id ?? '';
+        await addToCalender(calendar.name ?? '');
       }
       await prefs.setString(Secrets.calendarIds, jsonEncode(idMap));
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
+  Future<void> addToCalender(String calendarName) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final selectedCalendars = await getSelectedCalendars();
+      if (!selectedCalendars.contains(calendarName)) {
+        selectedCalendars.add(calendarName);
+        await prefs.setStringList(Secrets.selectedCalendars, selectedCalendars);
+      }
     } catch (e) {
       debugPrint(e.toString());
     }

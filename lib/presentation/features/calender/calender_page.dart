@@ -24,7 +24,6 @@ class CalenderPage extends GetView<CalenderController> {
           () => SfCalendar(
             controller: controller.calenderController,
             view: CalendarView.month,
-            specialRegions: _getTimeRegions(),
             dataSource: EventDataSource(controller.calendarEvents.value),
             showTodayButton: true,
             selectionDecoration: BoxDecoration(
@@ -40,28 +39,6 @@ class CalenderPage extends GetView<CalenderController> {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => controller.gotoAddEvent(),
-        child: const Icon(Icons.add),
-      ),
     );
-  }
-
-  List<TimeRegion> _getTimeRegions() {
-    final List<TimeRegion> regions = <TimeRegion>[];
-    final DateTime today = DateTime.now();
-    final DateTime startTime = DateTime(today.year, today.month, today.day, 9);
-    final DateTime endTime = startTime.add(const Duration(hours: 5));
-    regions.add(
-      TimeRegion(
-        startTime: startTime,
-        endTime: endTime,
-        enablePointerInteraction: false,
-        color: const Color(0xFF0F8644),
-        text: 'Conference',
-      ),
-    );
-
-    return regions;
   }
 }

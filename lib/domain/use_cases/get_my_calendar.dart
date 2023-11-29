@@ -5,10 +5,8 @@ import 'package:device_calendar/device_calendar.dart';
 abstract class GetMyCalendar {
   Future<Map<String, List<Calendar>>> loadCalender();
   Future<List<String>> getSelectedCalendars();
-  Future<void> addOrRemoveFromCalendars(bool? value, String calendarName);
+  Future<void> addOrRemoveFromCalendars(String calendarName);
   Future<List<MyCalendarEvent>> getDataSource();
-  Future<void> addToCalendar(
-      MyCalendarEvent calenderEvent, String selectedCalendarId);
 }
 
 class GetMyCalenderImpl extends GetMyCalendar {
@@ -22,19 +20,13 @@ class GetMyCalenderImpl extends GetMyCalendar {
   }
 
   @override
-  Future<void> addToCalendar(
-      MyCalendarEvent calenderEvent, String selectedCalendarId) {
-    return _iMyCalendarRepo.addToCalendar(calenderEvent, selectedCalendarId);
-  }
-
-  @override
   Future<List<String>> getSelectedCalendars() {
     return _iMyCalendarRepo.getSelectedCalendars();
   }
 
   @override
-  Future<void> addOrRemoveFromCalendars(bool? value, String calendarName) {
-    return _iMyCalendarRepo.addOrRemoveFromCalendars(value, calendarName);
+  Future<void> addOrRemoveFromCalendars(String calendarName) {
+    return _iMyCalendarRepo.addOrRemoveFromCalendars(calendarName);
   }
 
   @override

@@ -9,12 +9,6 @@ class MyCalendarRepoImpl implements IMyCalendarRepo {
   final MyCalendarDataSource _myCalendarDataSource;
 
   @override
-  Future<void> addToCalendar(
-      MyCalendarEvent calenderEvent, String selectedCalendarId) {
-    throw UnimplementedError();
-  }
-
-  @override
   Future<Map<String, List<Calendar>>> loadCalender() {
     return _myCalendarDataSource.loadCalender();
   }
@@ -25,8 +19,8 @@ class MyCalendarRepoImpl implements IMyCalendarRepo {
   }
 
   @override
-  Future<void> addOrRemoveFromCalendars(bool? value, String calendarName) {
-    return _myCalendarDataSource.addOrRemoveFromCalendars(value, calendarName);
+  Future<void> addOrRemoveFromCalendars(String calendarName) {
+    return _myCalendarDataSource.addOrRemoveFromCalendars(calendarName);
   }
 
   @override

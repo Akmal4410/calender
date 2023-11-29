@@ -1,6 +1,5 @@
 import 'package:calender/domain/models/calender_event.dart';
 import 'package:calender/domain/use_cases/get_my_calendar.dart';
-import 'package:calender/utils/routes/app_routes.dart';
 import 'package:device_calendar/device_calendar.dart';
 import 'package:get/get.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
@@ -23,7 +22,7 @@ class CalenderController extends GetxController {
 
   Future<void> addOrRemoveFromCalendars(
       bool? value, String calendarName) async {
-    await _getMyCalendar.addOrRemoveFromCalendars(value, calendarName);
+    await _getMyCalendar.addOrRemoveFromCalendars(calendarName);
     await getSelectedCalendars();
   }
 
@@ -34,8 +33,8 @@ class CalenderController extends GetxController {
 
   @override
   void onInit() async {
-    await getSelectedCalendars();
     await getDataSource();
+    await getSelectedCalendars();
     final datas = await _getMyCalendar.loadCalender();
     calenders(datas);
     super.onInit();
@@ -50,9 +49,5 @@ class CalenderController extends GetxController {
   void changeView(CalendarView newView) {
     calenderController.view = newView;
     Get.back();
-  }
-
-  void gotoAddEvent() {
-    Get.toNamed(AppRoutes.kAddEvent);
   }
 }

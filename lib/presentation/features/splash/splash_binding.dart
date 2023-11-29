@@ -5,7 +5,7 @@ class SplashBinding extends Bindings {
   @override
   void dependencies() {
     Get.lazyPut(
-      () => SplashController(Get.find()),
+      () => SplashController(Get.find(), Get.find()),
     );
   }
 }
